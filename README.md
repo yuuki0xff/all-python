@@ -54,7 +54,7 @@ Run the unit test of [flask framework](http://flask.pocoo.org/) on all python ve
 
 ```bash
 $ docker run --rm -it yuuki0xff/all-python \
-	--before 'git clone https://github.com/pallets/flask &>/dev/null' \
+	--before 'git clone --depth=1 https://github.com/pallets/flask &>/dev/null' \
 	--exec 'cd flask && make test'
 ```
 
