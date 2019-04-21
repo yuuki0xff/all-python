@@ -202,6 +202,8 @@ EOS
 		local dir_name=$(version_to_dir_name $version)
 		echo "COPY --from=v$version /opt/all-python/$dir_name/ /opt/all-python/$dir_name/"
 	done
+	echo 'ADD bin/all-python.py /usr/local/bin/all-python'
+	echo 'ENTRYPOINT ["/opt/all-python/Python-3.7.3/bin/python", "/usr/local/bin/all-python"]'
 }
 
 main
