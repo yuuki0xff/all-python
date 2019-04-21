@@ -8,7 +8,7 @@ pull:
 
 .PHONY: build
 build: Dockerfile
-	docker build -t all-python . <Dockerfile
+	docker build -t all-python .
 
 Dockerfile: bin/generate-dockerfile
 	./bin/generate-dockerfile >Dockerfile
