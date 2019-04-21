@@ -31,11 +31,16 @@ Run a small script on all python versions:
 $ docker run --rm -it yuuki0xff/all-python -- -c 'print(type(u""))'
 =====> 2.0.1 ~ 2.7.16 <=====
 <type 'unicode'>
+
 =====> 3.0 ~ 3.2.6 <=====
   File "<string>", line 1
     print(type(u""))
                  ^
 SyntaxError: invalid syntax
+
+Command returned non-zero exit status 1
+Command: ['python', '-c', 'print(type(u""))']
+
 =====> 3.3.0 ~ 3.7.3 <=====
 <class 'str'>
 ```
