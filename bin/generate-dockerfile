@@ -197,7 +197,7 @@ RUN /opt/all-python/$dir_name/bin/python -c 'print("OK")'
 EOS
 	done
 
-	echo 'FROM debian:stable'
+	echo 'FROM buildpack-deps'
 	for version in ${all_versions[@]}; do
 		local dir_name=$(version_to_dir_name $version)
 		echo "COPY --from=v$version /opt/all-python/$dir_name/ /opt/all-python/$dir_name/"
