@@ -243,7 +243,8 @@ class SectionPrinter:
 
 class CompactSectionPrinter:
     def __init__(self, file=None):
-        self.p = SectionPrinter(file=file)
+        # 実行結果を出力するために使用するため、メッセージが空でも出力するようにする。
+        self.p = SectionPrinter(suppress_empty_msg=False, file=file)
         self.first_header = None
         self.last_header = None
         self.previous_msg = None
