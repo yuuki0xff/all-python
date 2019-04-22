@@ -341,7 +341,7 @@ def main():
                     f'Command returned non-zero exit status {e.returncode}\n'
                     f'Command: {e.cmd}'
                 )
-            csp.print(py.version, out)
+            csp.print(str(py.version), out)
         csp.close()
 
         p.print('after', args.after.run())
