@@ -329,6 +329,11 @@ def main():
         elif not any([args.exec, args.python_args]):
             raise InvalidArgument('must specify one argument of --exec or python_args')
 
+        if args.python_args == ['bash']:
+            # Starting an interactive shell.
+            os.execvp('bash', ['bash'])
+            raise Exception('unreachable')
+
         repo = PythonRepository(prefix='/opt/all-python')
 
         def version_matcher(ver: Version) -> bool:
