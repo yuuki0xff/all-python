@@ -299,7 +299,38 @@ class CompactSectionPrinter:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        prog='all-python',
+        epilog=(textwrap.dedent(r'''
+            Example:
+              Show this message:
+                $ all-python --help
+              
+              Run a python script on all python versions:
+                $ all-python -- -c 'print(type(u""))'
+                Note that "-c '...'" is the argument of python interpreter.
+                
+              Run a shell script:
+                $ all-python -b 'echo before' \
+                             -E 'python foo.py' \
+                             -a 'echo after'
+              
+              Specify the python version:
+                Specify the a version:
+                $ all-python -v 3.7.3 -- -c 'print(type(u""))'
+                
+                Specify versions by pattern:
+                $ all-python -v 2.7.x -- -c 'print(type(u""))'
+                It will be execute on Python 2.7.1 ~ 2.7.16.
+                
+                Specify multiple patterns:
+                $ all-python -v '2.7.x, 3.7.x' -- -c 'print(type(u""))'
+                
+                Specify versions by range:
+                $ all-python -s 3.5 -e 3.8 -- -c 'print(type(u""))'
+        ''') ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
     # Optional: shell command execution
     parser.add_argument('-b', '--before', type=ShellCommand, default=NullShellCommand(),
