@@ -242,6 +242,24 @@ class SectionPrinter:
 
 
 class CompactSectionPrinter:
+    """
+    >>> csp = CompactSectionPrinter()
+    >>> csp.print('0.1', 'alpha')
+    >>> csp.print('0.2', 'alpha')
+    >>> csp.print('0.3', 'alpha')
+    >>> csp.print('0.4', 'beta')
+    =====> 0.1 ~ 0.3 <=====
+    alpha
+    >>> csp.print('1.0', 'stable')
+    <BLANKLINE>
+    =====> 0.4 <=====
+    beta
+    >>> csp.close()
+    <BLANKLINE>
+    =====> 1.0 <=====
+    stable
+    """
+
     def __init__(self, file=None):
         # 実行結果を出力するために使用するため、メッセージが空でも出力するようにする。
         self.p = SectionPrinter(suppress_empty_msg=False, file=file)
