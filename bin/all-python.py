@@ -290,7 +290,8 @@ class CompactSectionPrinter:
     def print(self, header: str, msg: str, file=None):
         if self._is_first() or not self._is_omittable(msg):
             self._update_section(header, msg)
-        self.last_header = header
+        else:
+            self.last_header = header
 
     def close(self):
         self._update_section(None, None)
