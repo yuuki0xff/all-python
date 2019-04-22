@@ -302,11 +302,14 @@ def parse_args():
 
     # Optional: shell command execution
     parser.add_argument('-b', '--before', type=ShellCommand, default=NullShellCommand(),
-                        help='execute the following commands ...')
+                        help='execute shell commands before execute python script',
+                        metavar='CMD')
     parser.add_argument('-E', '--exec', type=ShellCommand,
-                        help='execute the following commands on each python versions')
+                        help='execute shell commands on each python versions',
+                        metavar='CMD')
     parser.add_argument('-a', '--after', type=ShellCommand, default=NullShellCommand(),
-                        help='execute the specified commands ...')
+                        help='execute shell commands after execute python script',
+                        metavar='CMD')
 
     # Optional: python interpreter versions
     parser.add_argument('-s', '--min-version', type=Version, default=NullVersionMatcher(),
