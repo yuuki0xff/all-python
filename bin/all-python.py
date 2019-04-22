@@ -140,11 +140,8 @@ class ShellCommand:
     def __init__(self, cmd: str):
         self.cmd = cmd
 
-    def run(self):
+    def run(self, py: Optional['PythonInterpreter'] = None):
         r""" Run the shell commands.
-
-        :param cmd: shell commands
-        :return: None
 
         >>> ShellCommand('echo OK').run()
         'OK\n'
@@ -155,8 +152,12 @@ class ShellCommand:
         >>> ShellCommand('echo stderr >&2').run()
         'stderr\n'
         """
+        new_env = {**os.environ}
+        if py:
+            new_env['PATH'] = py.bin_dir + ':' + new_env.get('PATH', '')
         result = subprocess.run(self.cmd, shell=True, check=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                env=new_env,
                                 encoding='utf8')
         return result.stdout
 
@@ -167,13 +168,12 @@ class NullShellCommand:
 
 
 class PythonCommand:
-    def __init__(self, py: 'PythonInterpreter', args):
-        self.py = py
+    def __init__(self, args):
         self.args = args
 
-    def run(self):
+    def run(self, py: 'PythonInterpreter'):
         new_env = {**os.environ}
-        new_env['PATH'] = self.py.bin_dir + ':' + new_env.get('PATH', '')
+        new_env['PATH'] = py.bin_dir + ':' + new_env.get('PATH', '')
         result = subprocess.run(['python', *self.args], check=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 env=new_env,
@@ -328,7 +328,7 @@ def parse_args():
                 
                 Specify versions by range:
                 $ all-python -s 3.5 -e 3.8 -- -c 'print(type(u""))'
-        ''') ),
+        ''')),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
@@ -407,12 +407,12 @@ def main():
             if args.exec:
                 cmd = args.exec
             elif args.python_args:
-                cmd = PythonCommand(py, args.python_args)
+                cmd = PythonCommand(args.python_args)
             else:
                 raise Exception('bug: --exec and python_args are None')
 
             try:
-                out = cmd.run()
+                out = cmd.run(py)
             except subprocess.CalledProcessError as e:
                 # ignore error
                 stdout = e.stdout.rstrip('\n')
