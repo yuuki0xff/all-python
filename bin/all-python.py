@@ -330,6 +330,26 @@ def main():
             raise InvalidArgument('must specify one argument of --exec or python_args')
 
         if args.python_args == ['bash']:
+            # Show splash message.
+            print(
+                '====================   all-python (shell mode)   ====================\n'
+                'You can use any linux commands on this shell.  For example, the following \n'
+                'commands are available.\n'
+                '\n'
+                '  apt        - install some software and libraries into this container.\n'
+                '  all-python - run various versions of python with specified arguments.\n'
+                '  exit       - exit this shell.\n'
+                '\n'
+                'Python interpreters are installed under the /opt/all-python/ directory.\n'
+                'If you want to specify the version of python interpreter, please append \n'
+                '/opt/all-python/Python-{version}/bin/ directory to $PATH.\n'
+                '\n'
+                'See `all-python --help` for more info.\n'
+                'Maintainer:  yuuki0xff  (https://github.com/yuuki0xff)\n'
+                'GitHub:      https://github.com/yuuki0xff/all-python\n'
+                'Bug Tracker: https://github.com/yuuki0xff/all-python/issues\n'
+                '====================================================================='
+            )
             # Starting an interactive shell.
             os.execvp('bash', ['bash'])
             raise Exception('unreachable')
