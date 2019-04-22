@@ -140,19 +140,19 @@ class ShellCommand:
         self.cmd = cmd
 
     def run(self):
-        """ Run the shell commands.
+        r""" Run the shell commands.
 
         :param cmd: shell commands
         :return: None
 
         >>> ShellCommand('echo OK').run()
-        OK
+        'OK\n'
         >>> ShellCommand('echo NG; false').run()
         Traceback (most recent call last):
         ...
         subprocess.CalledProcessError: Command 'echo NG; false' returned non-zero exit status 1.
         >>> ShellCommand('echo stderr >&2').run()
-        stderr
+        'stderr\n'
         """
         result = subprocess.run(self.cmd, shell=True, check=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
