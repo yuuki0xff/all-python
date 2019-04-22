@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 import fnmatch
+import functools
 import glob
 import os
 import re
 import subprocess
 import sys
-import functools
 from dataclasses import dataclass
 from typing import Callable, Optional
 
