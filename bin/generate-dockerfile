@@ -117,6 +117,8 @@ all_versions=(
 	3.7.2
 	3.7.3
 	3.7.4
+	3.7.5
+	3.8.0
 )
 
 version_to_file_name() {
