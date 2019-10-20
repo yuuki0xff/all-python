@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eu
 
+base_image=gcc:9
 all_versions=(
 	2.0.1
 	2.1
@@ -185,7 +186,7 @@ RUN cd /opt/all-python/$dir_name/bin && \
 
 		cat <<EOS
 # v$version
-FROM buildpack-deps as v$version
+FROM $base_image as v$version
 WORKDIR /build
 RUN wget "$url"
 RUN tar xvf $file_name
@@ -202,7 +203,7 @@ RUN /opt/all-python/$dir_name/bin/python -c 'print("OK")'
 EOS
 	done
 
-	echo 'FROM buildpack-deps'
+	echo "FROM $base_image"
 	for version in ${all_versions[@]}; do
 		local dir_name=$(version_to_dir_name $version)
 		echo "COPY --from=v$version /opt/all-python/$dir_name/ /opt/all-python/$dir_name/"

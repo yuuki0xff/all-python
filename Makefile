@@ -4,7 +4,7 @@ full-build: pull build
 
 .PHONY: pull
 pull:
-	docker pull buildpack-deps
+	docker pull gcc:9
 
 .PHONY: build
 build: Dockerfile
