@@ -7,9 +7,5 @@ pull:
 	docker pull gcc:9
 
 .PHONY: build
-build: Dockerfile
+build:
 	docker build -t all-python .
-
-Dockerfile: bin/generate-dockerfile
-	./bin/generate-dockerfile >Dockerfile
-

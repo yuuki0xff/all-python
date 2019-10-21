@@ -1,0 +1,274 @@
+#!/bin/bash
+set -eu
+
+all_versions=(
+	2.0.1
+	2.1
+	2.1.1
+	2.1.2
+	2.1.3
+	2.2
+	2.2.1
+	2.2.2
+	2.2.3
+	2.3
+	2.3.1
+	2.3.2
+	2.3.3
+	2.3.4
+	2.3.5
+	2.3.6
+	2.3.7
+	2.4
+	2.4.1
+	2.4.2
+	2.4.3
+	2.4.4
+	2.4.5
+	2.4.6
+	2.5
+	2.5.1
+	2.5.2
+	2.5.3
+	2.5.4
+	2.5.5
+	2.5.6
+	2.6
+	2.6.1
+	2.6.2
+	2.6.3
+	2.6.4
+	2.6.5
+	2.6.6
+	2.6.7
+	2.6.8
+	2.6.9
+	2.7
+	2.7.1
+	2.7.2
+	2.7.3
+	2.7.4
+	2.7.5
+	2.7.6
+	2.7.7
+	2.7.8
+	2.7.9
+	2.7.10
+	2.7.11
+	2.7.12
+	2.7.13
+	2.7.14
+	2.7.15
+	2.7.16
+	2.7.17
+	3.0
+	3.0.1
+	3.1
+	3.1.1
+	3.1.2
+	3.1.3
+	3.1.4
+	3.1.5
+	3.2
+	3.2.1
+	3.2.2
+	3.2.3
+	3.2.4
+	3.2.5
+	3.2.6
+	3.3.0
+	3.3.1
+	3.3.2
+	3.3.3
+	3.3.4
+	3.3.5
+	3.3.6
+	3.3.7
+	3.4.0
+	3.4.1
+	3.4.2
+	3.4.3
+	3.4.4
+	3.4.5
+	3.4.6
+	3.4.7
+	3.4.8
+	3.4.9
+	3.4.10
+	3.5.0
+	3.5.1
+	3.5.2
+	3.5.3
+	3.5.4
+	3.5.5
+	3.5.6
+	3.5.7
+	3.6.0
+	3.6.1
+	3.6.2
+	3.6.3
+	3.6.4
+	3.6.5
+	3.6.6
+	3.6.7
+	3.6.8
+	3.6.9
+	3.7.0
+	3.7.1
+	3.7.2
+	3.7.3
+	3.7.4
+	3.7.5
+	3.8.0
+)
+
+version_to_file_name() {
+	local version=$1
+	echo "Python-${version}.tgz"
+}
+version_to_dir_name() {
+	local version=$1
+	echo "Python-${version}"
+}
+version_to_source_url() {
+	local version=$1
+	local file_name=$(version_to_file_name $version)
+	echo "https://www.python.org/ftp/python/${version}/${file_name}"
+}
+echo_recipe() {
+	if [ $# -eq 1 ]; then
+		if [ -z "$1" ]; then
+			# Ignore empty line.
+			return
+		fi
+
+		# One-line recipe.
+		printf '\t%s\n' "$1"
+		return
+	fi
+
+	# Multi-lines recipe.
+	printf '\t%s \\\n' "$1"
+	shift
+	while [ $# -gt 1 ]; do
+		printf '\t\t%s \\\n' "$1"
+		shift
+	done
+	printf '\t\t%s\n' "$1"
+}
+
+generate_targets() {
+	local version
+	for version in "${all_versions[@]}"; do
+		local url=$(version_to_source_url $version)
+		local file_name=$(version_to_file_name $version)
+		local dir_name=$(version_to_dir_name $version)
+
+        # Generate download target.
+		echo ".PHONY: download_$version"
+		echo "download_$version: $file_name"
+		echo "$file_name:"
+		echo_recipe "wget $url"
+		echo
+
+		# see https://bugs.python.org/issue6094
+		local add_issue6094_workaround=:
+		case $version in
+			2.5*|2.6*|3.0*|3.1*)
+				add_issue6094_workaround='export SVNVERSION="Unversioned directory"'
+				;;
+		esac
+
+		# see https://bugs.python.org/issue1706863
+		local fix_issue1706863=:
+		case $version in
+			2.5*|2.6)
+				fix_issue1706863='patch -u </build/fix_sqlite3_setup_error.patch'
+				;;
+		esac
+
+        # Patch for the normalize python command name.
+		local major_minor_version=$version
+		case $version in
+			*.*.*)
+				major_minor_version=$(echo $version |sed -E 's@\.[^\.]+$@@')
+				;;
+		esac
+		local normalize_name=:
+		case $version in
+			3.*)
+				normalize_name=" \
+					cd /opt/all-python/$dir_name/bin && \
+					ls -l && \
+					if [ ! -f python ]; then \
+						ln -s python$major_minor_version python; \
+					fi \
+				"
+				;;
+		esac
+
+		# Generate build target.
+		echo ".PHONY: build_$version"
+		echo "build_$version: download_$version"
+		echo_recipe "tar xvf $file_name"
+		echo_recipe "mkdir -p /build/$dir_name"
+		echo_recipe "mkdir -p /opt/all-python/$dir_name"
+		echo_recipe \
+			"cd /build/$dir_name &&" \
+			"$add_issue6094_workaround &&" \
+			"$fix_issue1706863 &&" \
+			"./configure --prefix=/opt/all-python/$dir_name &&" \
+			"make"
+        echo
+
+        # Generate test target.
+		echo ".PHONY: test_$version"
+		echo "test_$version: build_$version"
+		echo_recipe \
+			"cd /build/$dir_name &&" \
+			"$normalize_name"
+        echo
+
+        # Generate install target.
+		echo ".PHONY: install_$version"
+		echo "install_$version: test_$version"
+		echo_recipe \
+			"cd /build/$dir_name &&" \
+			"make install"
+		echo_recipe "/opt/all-python/$dir_name/bin/python -c 'print(\"OK\")'"
+		echo
+
+		# Generate clean target.
+		echo ".PHONY: clean_$version"
+		echo "clean_$version:"
+		echo_recipe "rm -rf /build/$dir_name"
+		echo
+	done
+
+    echo '.PHONY: download_all'
+	echo -n 'download_all: '
+	for version in "${all_versions[@]}"; do
+		echo -n "download_$version "
+	done
+	echo
+
+    echo '.PHONY: install_all'
+	echo -n 'install_all: '
+	for version in "${all_versions[@]}"; do
+		echo -n "install_$version "
+	done
+	echo
+
+    echo '.PHONY: clean_all'
+	echo -n 'clean_all: '
+	for version in "${all_versions[@]}"; do
+		echo -n "clean_$version "
+	done
+	echo
+}
+
+main() {
+	generate_targets
+}
+
+main
